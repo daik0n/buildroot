@@ -15,6 +15,13 @@ HOST_FAKEROOT_DEPENDENCIES = host-acl
 HOST_FAKEROOT_CONF_ENV = \
 	ac_cv_header_sys_capability_h=no \
 	ac_cv_func_capset=no
+
+LIBC := $(shell ldd --version 2>&1 | head -1 | grep -oiE "musl|glibc" | tr '[:upper:]' '[:lower:]')
+ifeq ($(LIBC),musl)
+	HOST_FAKEROOT_CONF_ENV += CFLAGS="-D_STAT_VER=0 $(CFLAGS)"
+	FAKEROOT_AUTORECONF = YES
+endif
+
 FAKEROOT_LICENSE = GPL-3.0+
 FAKEROOT_LICENSE_FILES = COPYING
 

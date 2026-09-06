@@ -1,0 +1,20 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -428,7 +428,16 @@
+   FUNC=`echo $SEARCH|sed -e 's/.*%//'`
+   PRE=`echo $SEARCH|sed -e 's/%.*//'`
+   FOUND=
+-  for WRAPPED in __${PRE}x${FUNC} _${PRE}x${FUNC} __${PRE}${FUNC}13 ${PRE}${FUNC} __${PRE}${FUNC}; do
++  PREFUNCS=
++  LIBC=`ldd --version 2>&1 | head -1 | grep -oiE "musl|glibc" | tr '[[:upper:]]' '[[:lower:]]'`
++
++  if test "$LIBC" == "musl"; then
++      PREFUNCS="${PRE}${FUNC}"
++  else
++      PREFUNCS="__${PRE}x${FUNC} _${PRE}x${FUNC} __${PRE}${FUNC}13 ${PRE}${FUNC} __${PRE}${FUNC}"
++  fi
++
++  for WRAPPED in $PREFUNCS; do
+     AC_CHECK_FUNCS($WRAPPED,FOUND=$WRAPPED)
+ dnl
+ dnl to unconditionally define only the _* functions, comment out the 2 lines above,
